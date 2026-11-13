@@ -1,0 +1,147 @@
+> getwd()
+[1] "/Users/geo/R_stuff/Emelio_315_Project"
+> list.files()
+[1] "500234_DV.csv"        "500234_IV.csv"       
+[3] "500234_partB.csv"     "Dataset_complete.csv"
+> library(dplyr)
+> Dataset_B <- read.csv("500234_partB.csv", header = TRUE)
+> str(Dataset_B)
+'data.frame':	559 obs. of  3 variables:
+ $ ID: int  1 2 3 4 5 6 7 8 9 10 ...
+ $ x : num  0.906 1.049 1.036 1.026 1.145 ...
+ $ y : num  0.00344 0.00407 0.01011 0.00807 0.00562 ...
+> head(Dataset_B)
+  ID        x           y
+1  1 0.906446 0.003444423
+2  2 1.049238 0.004072142
+3  3 1.036093 0.010111437
+4  4 1.025553 0.008073261
+5  5 1.145493 0.005618970
+6  6 1.154861 0.005186621
+> summary(Dataset_B$x)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+ 0.9031  1.0404  1.1850  1.1957  1.3544  1.4986 
+> summary(Dataset_B$y)
+    Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+0.002019 0.004814 0.006538 0.007236 0.008922 0.025785 
+> sd(Dataset_B$x)
+[1] 0.174428
+> sd(Dataset_B$y)
+[1] 0.003160109
+> length(Dataset_B$y)
+[1] 559
+> length(Dataset_B$x)
+[1] 559
+> hist(Dataset_B$x)
+> hist(Dataset_B$y)
+> plot(Dataset_B$x,Dataset_B$y, xlab = "IV", ylab = "DV", main = "Scatterplot: DV~IV")
+> M <- lm(y~x, data = Dataset_B)
+> summary(M)
+
+Call:
+lm(formula = y ~ x, data = Dataset_B)
+
+Residuals:
+       Min         1Q     Median         3Q        Max 
+-0.0057637 -0.0014913 -0.0003166  0.0010598  0.0171342 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept) -0.0066066  0.0007135   -9.26   <2e-16 ***
+x            0.0115772  0.0005905   19.61   <2e-16 ***
+---
+Signif. codes:  
+0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.002433 on 557 degrees of freedom
+Multiple R-squared:  0.4084,	Adjusted R-squared:  0.4073 
+F-statistic: 384.4 on 1 and 557 DF,  p-value: < 2.2e-16
+
+> abline(M, col='red', lty=3, lwd=2)
+> legend('topleft', legend='Estimated Regression Line', lty=3, lwd=2, col='red')
+> cor(Dataset_B$x, Dataset_B$y)
+[1] 0.6390264
+> cov(Dataset_B$x, Dataset_B$y)
+[1] 0.0003522388
+> CorCoe <- cor(Dataset_B$x, Dataset_B$y)
+> covxy <- cov(Dataset_B$x, Dataset_B$y)
+> summary(M)
+
+Call:
+lm(formula = y ~ x, data = Dataset_B)
+
+Residuals:
+       Min         1Q     Median         3Q        Max 
+-0.0057637 -0.0014913 -0.0003166  0.0010598  0.0171342 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept) -0.0066066  0.0007135   -9.26   <2e-16 ***
+x            0.0115772  0.0005905   19.61   <2e-16 ***
+---
+Signif. codes:  
+0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.002433 on 557 degrees of freedom
+Multiple R-squared:  0.4084,	Adjusted R-squared:  0.4073 
+F-statistic: 384.4 on 1 and 557 DF,  p-value: < 2.2e-16
+
+> intercept <- coef(M) [1]
+> slope <- coef(M) [2]
+> rsquared <- summary(M)$r.squared
+> pValue <- summary(M)$coefficients[2,4]
+> confint(M, level = 0.99)
+                   0.5 %       99.5 %
+(Intercept) -0.008450771 -0.004762518
+x            0.010051080  0.013103374
+> plot(M$fitted.values, M$residuals, xlab= "Predicted  values", ylab = "Residuals", main = "Residual Plot")
+> abline(h=0)
+> M2 <- lm(log(y) ~x, data = Dataset_B)
+> M3 <- lm(y ~ log(x), data = Dataset_B)
+> M4 <- lm(log(y) ~ log(x), data = Dataset_B)
+> summary(M)$r.squared
+[1] 0.4083548
+> summary(M2)$r.squared
+[1] 0.4771178
+> summary(M3)$r.squared
+[1] 0.407917
+> summary(M4)$r.squared
+[1] 0.4832618
+> plot(M2$fitted.values, M2$residuals, xlab = "Predicted Values", ylab = "Residuals", main = "Residuals Plot 2")
+> abline(h=0)
+> plot(M3$fitted.values, M3$residuals, xlab = "Predicted Values", ylab = "Residuals", main = "Residuals Plot 3")
+> abline(h=0)
+> plot(M4$fitted.values, M4$residuals, xlab = "Predicted Values", ylab = "Rediduals", main = "Residuals Plot 4")
+> abline(h=0)
+> Dataset_B$xbin <- round(Dataset_B$x, 1)
+> binned <- Dataset_B %>%
++ group_by(xbin) %>%
++ summarize(x = mean(x), y = mean(y), n=n())
+> binnedModel <- lm(y~x, data = binned)
+> summary(binnedModel)
+
+Call:
+lm(formula = y ~ x, data = binned)
+
+Residuals:
+         1          2          3          4          5 
+-0.0002573  0.0001096  0.0001833 -0.0003277  0.0003523 
+         6          7 
+ 0.0006268 -0.0006869 
+
+Coefficients:
+              Estimate Std. Error t value Pr(>|t|)    
+(Intercept) -0.0061862  0.0012026  -5.144  0.00363 ** 
+x            0.0111570  0.0009908  11.260 9.65e-05 ***
+---
+Signif. codes:  
+0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.0004915 on 5 degrees of freedom
+Multiple R-squared:  0.9621,	Adjusted R-squared:  0.9545 
+F-statistic: 126.8 on 1 and 5 DF,  p-value: 9.651e-05
+
+> plot(binnedModel$fitted.values, binnedModel$rediduals)
+> abline(h=0)
+2026-10-27 20:07:49.985 R[485:4320] The class 'NSSavePanel' overrides the method identifier.  This method is implemented by class 'NSWindow'
+> 
